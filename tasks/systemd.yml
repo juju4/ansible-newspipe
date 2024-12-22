@@ -22,3 +22,5 @@
     name: newspipe-gunicorn
     state: started
     enabled: yes
+  when:
+    - not is_container|bool
