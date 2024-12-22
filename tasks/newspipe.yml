@@ -93,7 +93,7 @@
     mode: '0644'
     owner: "{{ newspipe_user }}"
   notify:
-    - Restart newspipe
+    - Restart newspipe-gunicorn
 
 - name: Initialize database
   ansible.builtin.command:
