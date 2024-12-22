@@ -27,6 +27,7 @@ newspipe_poetry_system_git: true
 newspipe_pkgs:
   - git
   - python3
+  - acl
 
 newspipe_db_host: db
 newspipe_db_port: 5432
