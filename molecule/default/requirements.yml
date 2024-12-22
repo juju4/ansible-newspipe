@@ -1,0 +1,8 @@
+---
+
+roles:
+  - name: geerlingguy.nodejs
+  - name: geerlingguy.postgresql
+  - src: https://github.com/juju4/ansible-harden-nginx/
+    version: main
+    name: juju4.harden_nginx

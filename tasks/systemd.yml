@@ -1,0 +1,24 @@
+---
+
+- name: Ensure systemd is present
+  ansible.builtin.package:
+    name: systemd
+    state: present
+
+- name: Configure newspipe-gunicorn systemd unit
+  ansible.builtin.template:
+    src: "systemd-newspipe-gunicorn.service.j2"
+    dest: "/etc/systemd/system/newspipe-gunicorn.service"
+    mode: '0644'
+  notify:
+    - Reload systemd
+    - Restart newspipe-gunicorn
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
+
+- name: Enable and start newspipe-gunicorn
+  ansible.builtin.service:
+    name: newspipe-gunicorn
+    state: started
+    enabled: yes

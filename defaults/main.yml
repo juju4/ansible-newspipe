@@ -1,0 +1,43 @@
+---
+
+# 11.1.0
+newspipe_version: 11131b4853581ec79c7f5a0f56c331351466d1c0
+newspipe_user: _newspipe
+newspipe_home: /var/lib/_newspipe
+newspipe_root: /var/lib/_newspipe/newspipe
+# database choice
+newspipe_config: sqlite.py
+# newspipe_config: postgresql.py
+newspipe_config_template: config.py
+newspipe_prefix:
+# newspipe_prefix: /newspipe
+
+newspipe_listen_host: 0.0.0.0
+newspipe_listen_port: 5000
+
+newspipe_flask_admin_user: newspipe_admin
+newspipe_flask_admin_pass: newspipe_admin
+
+poetry_root: /usr/local/share/poetry
+newspipe_poetry_install_version: fcd759d6feb9142736a19f8a753be975a120be87
+newspipe_poetry_hash: 'sha256:66db5477a597b6176202ef77792076057ce50d2c5a2d2d2978c63e1f144d7b95'
+newspipe_poetry_version: 1.8.4
+newspipe_poetry_system_git: true
+
+newspipe_pkgs:
+  - git
+  - python3
+
+newspipe_db_host: db
+newspipe_db_port: 5432
+newspipe_db_name: postgres
+newspipe_db_user: postgres
+newspipe_db_pass:
+newspipe_ldap_uri: "ldaps://ipa.internal.com:636"
+newspipe_ldap_bind_dn: "uid=sampleuser,cn=users,cn=accounts,dc=ipa,dc=internal,dc=com"
+newspipe_ldap_bind_pass:
+
+newspipe_systemd_hardening_enable: true
+newspipe_cgroups_restriction_enable: true
+
+install_archives: /var/_install

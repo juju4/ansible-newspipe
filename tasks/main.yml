@@ -1,0 +1,66 @@
+---
+
+- name: Ensure archives folder exists
+  ansible.builtin.file:
+    dest: "{{ install_archives }}"
+    state: directory
+    mode: '0775'
+  become: yes
+  become_user: root
+
+- name: Debian | Update cache
+  ansible.builtin.apt:
+    update_cache: yes
+    cache_valid_time: "{{ newspipe_apt_cache_valid_time | default('3600') }}"
+  become: yes
+  become_user: root
+  when: ansible_os_family == 'Debian'
+
+- name: Ensure dependencies packages are present
+  ansible.builtin.package:
+    name: "{{ newspipe_pkgs }}"
+    state: present
+  become: yes
+  become_user: root
+  register: pkg_result
+  until: pkg_result is success
+
+- name: Ensure newspipe user exists
+  ansible.builtin.user:
+    name: "{{ newspipe_user }}"
+    home: "{{ newspipe_home }}"
+    system: true
+  become: yes
+  become_user: root
+
+- name: Ensure right permissions for newspipe home
+  ansible.builtin.file:
+    path: "{{ newspipe_home }}"
+    owner: "{{ newspipe_user }}"
+    mode: '0755'
+    state: directory
+  become: yes
+  become_user: root
+
+- name: Grant user poetry access to archives
+  ansible.posix.acl:
+    path: "{{ install_archives }}"
+    entity: "{{ newspipe_user }}"
+    etype: user
+    permissions: rwx
+    state: present
+  become: yes
+  become_user: root
+
+- name: Import poetry
+  ansible.builtin.import_tasks: poetry.yml
+  vars:
+    poetry_user: "{{ newspipe_user }}"
+
+- name: Import newspipe
+  ansible.builtin.import_tasks: newspipe.yml
+  become: yes
+  become_user: "{{ newspipe_user }}"
+
+- name: Import systemd
+  ansible.builtin.import_tasks: systemd.yml

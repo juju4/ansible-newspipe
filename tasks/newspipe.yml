@@ -1,0 +1,130 @@
+---
+
+- name: Git clone repository
+  ansible.builtin.git:
+    repo: https://github.com/cedricbonhomme/newspipe.git
+    dest: "{{ newspipe_root }}"
+    version: "{{ newspipe_version }}"
+    update: no
+    force: no
+
+- name: Poetry | check system git config
+  ansible.builtin.command: "poetry config experimental.system-git-client"
+  args:
+    chdir: "{{ newspipe_root }}"
+  environment:
+    PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:{{ poetry_root }}/bin"
+    XDG_CONFIG_HOME: "{{ newspipe_home }}/.config"
+  changed_when: false
+  register: poetry_git_sys
+
+- name: Poetry | use system git
+  ansible.builtin.command:  # noqa no-changed-when
+    cmd: "poetry config experimental.system-git-client {{ newspipe_poetry_system_git | bool | lower }} --local"
+  args:
+    chdir: "{{ newspipe_root }}"
+  environment:
+    PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:{{ poetry_root }}/bin"
+    XDG_CONFIG_HOME: "{{ newspipe_home }}/.config"
+  when: poetry_git_sys.stdout != newspipe_poetry_system_git | bool | lower
+
+# FIXME! not idempotent
+- name: Run npm ci
+  community.general.npm:
+    ci: true
+    path: "{{ newspipe_root }}"
+
+- name: Install newspipe
+  ansible.builtin.command:
+    cmd: poetry install --no-dev
+  args:
+    chdir: "{{ newspipe_root }}"
+    # creates: "{{ newspipe_root }}/.cache/pypoetry/virtualenvs/newspipe-<RANDOM>-py3.10/bin/weasyprint"
+  environment:
+    PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:{{ poetry_root }}/bin"
+  register: poetry_install
+  changed_when: "'No dependencies to install or update' not in poetry_install.stdout"
+
+- name: Get newspipe poetry virtualenv bin path
+  ansible.builtin.command: "find {{ newspipe_home }}/.cache/pypoetry/virtualenvs/ -maxdepth 2 -type d -ipath '*/bin'"
+  register: venv_newspipe
+  changed_when: false
+  failed_when: venv_newspipe.rc != 0
+
+- name: Compile newspipe/translations
+  ansible.builtin.command:
+    cmd: "pybabel compile -d newspipe/translations"
+  args:
+    chdir: "{{ newspipe_root }}"
+    creates: "{{ newspipe_root }}/newspipe/translations/fr/LC_MESSAGES/messages.mo"
+  environment:
+    PATH: "{{ venv_newspipe.stdout }}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:{{ poetry_root }}/bin"
+
+- name: Include random
+  ansible.builtin.include_tasks: random.yml
+  vars:
+    secretdir: "{{ newspipe_home }}"
+    secretprefix: .secrets-newspipe
+    secretlength: 64
+    secretbase64: true
+    name_random: key
+- name: Set fact newspipe_secret_key
+  ansible.builtin.set_fact:
+    newspipe_secret_key: "{{ secret }}"
+  no_log: true
+
+- name: Include random
+  ansible.builtin.include_tasks: random.yml
+  vars:
+    secretdir: "{{ newspipe_home }}"
+    secretprefix: .secrets-newspipe
+    secretlength: 64
+    secretbase64: true
+    name_random: salt
+- name: Set fact newspipe_security_password_salt
+  ansible.builtin.set_fact:
+    newspipe_security_password_salt: "{{ secret }}"
+  no_log: true
+
+- name: Configure newspipe
+  ansible.builtin.template:
+    src: "{{ newspipe_config_template }}.j2"
+    dest: "{{ newspipe_root }}/instance/config.py"
+    mode: '0644'
+    owner: "{{ newspipe_user }}"
+  notify:
+    - Restart newspipe
+
+- name: Initialize database
+  ansible.builtin.command:
+    cmd: "flask db_init"
+  args:
+    chdir: "{{ newspipe_root }}"
+    # only if sqlite
+    creates: "{{ newspipe_root }}/instance/newspipe.db"
+  environment:
+    PATH: "{{ venv_newspipe.stdout }}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:{{ poetry_root }}/bin"
+    NEWSPIPE_CONFIG: "{{ newspipe_config }}"
+
+- name: Create admin user
+  ansible.builtin.command:
+    cmd: "flask create_admin --nickname {{ newspipe_flask_admin_user }} --password \"{{ newspipe_flask_admin_pass }}\""
+  args:
+    chdir: "{{ newspipe_root }}"
+    # creates: "{{ newspipe_root }}/newspipe/translations/fr/LC_MESSAGES/messages.mo"
+  environment:
+    PATH: "{{ venv_newspipe.stdout }}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:{{ poetry_root }}/bin"
+    NEWSPIPE_CONFIG: "{{ newspipe_config }}"
+  register: create_admin
+  failed_when:
+    - "'(sqlite3.IntegrityError) UNIQUE constraint failed: user.nickname' not in create_admin.stderr"
+    - "'Error' in create_admin.stderr"
+  changed_when:
+    - create_admin.rc == 0
+    - create_admin.stdout == ''
+
+- name: Ensure gunicorn is present
+  ansible.builtin.pip:
+    name: gunicorn
+    state: present
+    virtualenv: "{{ venv_newspipe.stdout }}/../"

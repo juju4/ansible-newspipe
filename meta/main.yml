@@ -1,0 +1,21 @@
+---
+galaxy_info:
+  role_name: newspipe
+  author: juju4
+  description: Setup newspipe, a web news aggregator.
+  license: BSD
+  min_ansible_version: '1.9'
+  platforms:
+    - name: EL
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - jammy
+        - focal
+        - bionic
+  galaxy_tags:
+    - news
+    - rss
+    - web
+dependencies: []

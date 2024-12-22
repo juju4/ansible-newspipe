@@ -1,0 +1,103 @@
+{{ ansible_managed | comment }}
+
+import os
+
+#
+# Example configuration file for a PostgreSQL database.
+#
+
+# Webserver
+HOST = "{{ newspipe_listen_host }}"
+PORT = {{ newspipe_listen_port }}
+DEBUG = True
+API_ROOT = "/api/v2.0"
+
+# Optional, and useful if you are using a reverse proxy with this virtual path prefix
+{% if newspipe_prefix is defined and newspipe_prefix | length > 0 %}
+PREFIX = "{{ newspipe_prefix }}"
+{% endif %}
+
+CSRF_ENABLED = True
+SECRET_KEY = "{{ newspipe_secret_key }}"
+SECURITY_PASSWORD_SALT = "{{ newspipe_security_password_salt }}"
+
+# Database
+DB_CONFIG_DICT = {
+    "user": "{{ newspipe_db_user }}",
+    "password": "{{ newspipe_db_pass }}",
+    "host": "{{ newspipe_db_host }}",
+    "port": {{ newspipe_db_port }},
+}
+DATABASE_NAME = "{{ newspipe_db_name }}"
+SQLALCHEMY_DATABASE_URI = "postgresql://{user}:{password}@{host}:{port}/{name}".format(
+    name=DATABASE_NAME, **DB_CONFIG_DICT
+)
+
+# Security
+CONTENT_SECURITY_POLICY = {
+    "default-src": "'self'",
+    "img-src": "*",
+    "media-src": [
+        "youtube.com",
+    ],
+    "script-src": [
+        "'self'",
+        "'unsafe-inline'",
+    ],
+    "style-src": [
+        "'self'",
+        "'unsafe-inline'",
+    ],
+}
+# Crawler
+CRAWLING_METHOD = "default"
+DEFAULT_MAX_ERROR = 6
+HTTP_PROXY = ""
+CRAWLER_USER_AGENT = "Newspipe (https://github.com/cedricbonhomme/newspipe)"
+CRAWLER_TIMEOUT = 30
+CRAWLER_RESOLVE_ARTICLE_URL = False
+FEED_REFRESH_INTERVAL = 120
+
+# Notification
+MAIL_SERVER = "localhost"
+MAIL_PORT = 25
+MAIL_USE_TLS = False
+MAIL_USE_SSL = False
+MAIL_DEBUG = DEBUG
+MAIL_USERNAME = None
+MAIL_PASSWORD = None
+MAIL_DEFAULT_SENDER = "admin@admin.localhost"
+TOKEN_VALIDITY_PERIOD = 3600
+PLATFORM_URL = "https://www.newspipe.org"
+
+# Misc
+BASE_DIR = os.path.abspath(os.path.dirname("."))
+LANGUAGES = {"en": "English", "fr": "French"}
+TIME_ZONE = {"en": "US/Eastern", "fr": "Europe/Paris"}
+ADMIN_EMAIL = "admin@admin.localhost"
+LOG_LEVEL = "info"
+LOG_PATH = "./var/newspipe.log"
+SELF_REGISTRATION = True
+
+# Ldap, optional
+LDAP_ENABLED = False
+# LDAP_URI will automatically try the _ldap._tcp lookups like for a kerberos domain but
+# will fall back to this exact domain (server) name if such a TXT record is not found.
+LDAP_URI = "{{ newspipe_ldap_uri }}"
+LDAP_USER_BASE = "cn=users,cn=accounts,dc=ipa,dc=internal,dc=com"
+LDAP_GROUP_BASE = "cn=groups,cn=accounts,dc=ipa,dc=internal,dc=com"
+LDAP_USER_MATCH_ATTRIB = "uid"
+LDAP_USER_DISPLAY_ATTRIB = "uid"
+LDAP_USER_ATTRIB_MEMBEROF = "memberof"
+LDAP_GROUP_DISPLAY_ATTRIB = "cn"
+LDAP_BIND_DN = "{{ newspipe_ldap_bind_dn }}"
+LDAP_BIND_PASSWORD = "{{ newspipe_ldap_bind_pass }}"
+# Additional filter to restrict user lookup. If not equivalent to False
+# (e.g., undefined), will be logical-anded to the user-match-attribute search filter.
+LDAP_FILTER = (
+    "(memberOf=cn=newspipe-users,cn=groups,cn=accounts,dc=ipa,dc=internal,dc=com)"
+)
+
+# Vulnerability Lookup
+VULNERABILITY_LOOKUP_BASE_URL = "https://vulnerability.circl.lu/"
+VULNERABILITY_AUTH_TOKEN = ""
