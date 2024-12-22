@@ -13,7 +13,7 @@ DEBUG = True
 API_ROOT = "/api/v2.0"
 
 # Optional, and useful if you are using a reverse proxy with this virtual path prefix
-{% if newspipe_prefix is defined and newspipe_prefix | length > 0 %}
+{% if newspipe_prefix is defined and newspipe_prefix != None and newspipe_prefix | length > 0 %}
 PREFIX = "{{ newspipe_prefix }}"
 {% endif %}
 
