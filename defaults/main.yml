@@ -42,3 +42,4 @@ newspipe_systemd_hardening_enable: true
 newspipe_cgroups_restriction_enable: true
 
 install_archives: /var/_install
+is_container: false
