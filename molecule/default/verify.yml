@@ -67,7 +67,7 @@
       ansible.builtin.command:
         cmd: /usr/local/share/poetry/bin/poetry install --dry-run --sync --no-ansi
       args:
-        chdir: "/var/lib/_newspipe"
+        chdir: "/var/lib/_newspipe/newspipe"
       changed_when: false
       register: poetrylist
     - name: Ensure some dependencies are present in poetry
