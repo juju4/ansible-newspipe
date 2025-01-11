@@ -1,7 +1,7 @@
 ---
 
-# 11.1.0
-newspipe_version: 11131b4853581ec79c7f5a0f56c331351466d1c0
+# 11.2.0
+newspipe_version: 656377778cbea9427a7dc793c707e06afd7f2743
 newspipe_user: _newspipe
 newspipe_home: /var/lib/_newspipe
 newspipe_root: /var/lib/_newspipe/newspipe
