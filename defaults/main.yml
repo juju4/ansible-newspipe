@@ -37,6 +37,7 @@ newspipe_db_pass: ''
 newspipe_ldap_uri: "ldaps://ipa.internal.com:636"
 newspipe_ldap_bind_dn: "uid=sampleuser,cn=users,cn=accounts,dc=ipa,dc=internal,dc=com"
 newspipe_ldap_bind_pass: ''
+newspipe_http_proxy: ''
 
 newspipe_systemd_hardening_enable: true
 newspipe_cgroups_restriction_enable: true
