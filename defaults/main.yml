@@ -1,7 +1,7 @@
 ---
 
-# 11.2.0
-newspipe_version: 656377778cbea9427a7dc793c707e06afd7f2743
+# renovate: datasource=github-releases depName=cedricbonhomme/newspipe
+newspipe_version: 'v11.2.0'
 newspipe_user: _newspipe
 newspipe_home: /var/lib/_newspipe
 newspipe_root: /var/lib/_newspipe/newspipe
