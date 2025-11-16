@@ -43,7 +43,8 @@
         manager: auto
     - name: Validate that needed packages are present
       ansible.builtin.assert:
-        that: ansible_facts.packages['git']
+        that:
+          - ansible_facts.packages['git'] is defined
 
     - name: Check config file
       ansible.builtin.stat:
@@ -104,7 +105,7 @@
       failed_when: false
     - name: Validate localhost endpoint
       ansible.builtin.assert:
-        that: >
-          "'newspipe' in web.content"
+        that:
+          - "'newspipe' in web.content"
       when:
         - not is_container|bool
