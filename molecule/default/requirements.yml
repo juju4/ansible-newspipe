@@ -2,6 +2,8 @@
 
 roles:
   - name: geerlingguy.nodejs
+    src: https://github.com/juju4/ansible-role-nodejs/
+    version: devel
   - name: geerlingguy.postgresql
   - src: https://github.com/juju4/ansible-harden-nginx/
     version: main
