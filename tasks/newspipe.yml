@@ -36,7 +36,7 @@
 
 - name: Install newspipe
   ansible.builtin.command:
-    cmd: poetry install --no-dev
+    cmd: "poetry install {{ poetry_install_args }}"
   args:
     chdir: "{{ newspipe_root }}"
     # creates: "{{ newspipe_root }}/.cache/pypoetry/virtualenvs/newspipe-<RANDOM>-py3.10/bin/weasyprint"
