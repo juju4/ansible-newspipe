@@ -22,7 +22,7 @@ poetry_root: /usr/local/share/poetry
 newspipe_poetry_install_version: fcd759d6feb9142736a19f8a753be975a120be87
 newspipe_poetry_hash: 'sha256:66db5477a597b6176202ef77792076057ce50d2c5a2d2d2978c63e1f144d7b95'
 # renovate: datasource=github-releases depName=python-poetry/poetry
-newspipe_poetry_version: 1.8.4
+newspipe_poetry_version: 2.4.1
 newspipe_poetry_system_git: true
 
 newspipe_pkgs:
