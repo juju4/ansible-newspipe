@@ -1,5 +1,18 @@
 ---
 
+- name: Include poetry v1.x variables
+  ansible.builtin.include_vars: poetry1.yml
+  when:
+    - newspipe_poetry_version is defined
+    - newspipe_poetry_version | length != 0
+    - "newspipe_poetry_version is version('2.0', '<')"
+- name: Include poetry v2.x variables
+  ansible.builtin.include_vars: poetry2.yml
+  when: >
+    newspipe_poetry_version is not defined
+    or newspipe_poetry_version | length == 0
+    or newspipe_poetry_version is version('2.0', '>=')
+
 - name: Set fact is_container
   ansible.builtin.set_fact:
     is_container: true
