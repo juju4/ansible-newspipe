@@ -81,6 +81,13 @@
   vars:
     poetry_user: "{{ newspipe_user }}"
 
+- name: Install dependencies packages
+  ansible.builtin.package:
+    name:
+      - libxml2-dev
+      - libxslt1-dev
+  when: (ansible_facts['distribution'] == "Ubuntu" and ansible_facts['distribution_major_version'] | int == 26)
+
 - name: Import newspipe
   ansible.builtin.import_tasks: newspipe.yml
   become: yes
