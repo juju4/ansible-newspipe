@@ -34,6 +34,13 @@
     ci: true
     path: "{{ newspipe_root }}"
 
+- name: Install dependencies packages
+  ansible.builtin.package:
+    name:
+      - libxml2-dev
+      - libxslt1-dev
+  when: (ansible_facts['distribution'] == "Ubuntu" and ansible_facts['distribution_major_version'] | int == 26)
+
 - name: Install newspipe
   ansible.builtin.command:
     cmd: "poetry install {{ poetry_install_args }}"
